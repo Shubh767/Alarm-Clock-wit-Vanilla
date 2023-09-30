@@ -1,0 +1,56 @@
+document.addEventListener("DOMContentLoaded", function () {
+    const timeDisplay = document.getElementById("time");
+    const alarmHourInput = document.getElementById("alarm-hour");
+    const alarmMinuteInput = document.getElementById("alarm-minute");
+    const alarmSecondInput = document.getElementById("alarm-second");
+    const amPmSelect = document.getElementById("am-pm");
+    const setAlarmButton = document.getElementById("set-alarm");
+    const alarmsList = document.getElementById("alarms-list");
+
+    function updateTime() {
+        const now = new Date();
+        const hours = now.getHours() % 12 || 12;
+        const minutes = String(now.getMinutes()).padStart(2, "0");
+        const seconds = String(now.getSeconds()).padStart(2, "0");
+        const amPm = now.getHours() < 12 ? "AM" : "PM";
+        timeDisplay.textContent = `${hours}:${minutes}:${seconds} ${amPm}`;
+    }
+
+    setInterval(updateTime, 1000);
+    updateTime();
+
+    setAlarmButton.addEventListener("click", function () {
+        const hour = parseInt(alarmHourInput.value);
+        const minute = parseInt(alarmMinuteInput.value);
+        const second = parseInt(alarmSecondInput.value);
+        const amPm = amPmSelect.value;
+
+        if (!isNaN(hour) && !isNaN(minute) && !isNaN(second)) {
+            const alarmTime = `${hour}:${String(minute).padStart(2, "0")}:${String(second).padStart(2, "0")} ${amPm}`;
+            const listItem = document.createElement("li");
+            listItem.textContent = alarmTime;
+            const deleteButton = document.createElement("button");
+            deleteButton.textContent = "Delete";
+            listItem.appendChild(deleteButton);
+            alarmsList.appendChild(listItem);
+
+            deleteButton.addEventListener("click", function () {
+                alarmsList.removeChild(listItem);
+            });
+
+            // Set up the alarm trigger
+            const now = new Date();
+            const alarmDate = new Date();
+            alarmDate.setHours(amPm === "PM" ? hour + 12 : hour, minute, second, 0);
+
+            if (alarmDate < now) {
+                alarmDate.setDate(alarmDate.getDate() + 1);
+            }
+
+            const timeUntilAlarm = alarmDate - now;
+            setTimeout(function () {
+                alert(`Alarm for ${alarmTime}`);
+            }, timeUntilAlarm);
+        }
+    });
+});
